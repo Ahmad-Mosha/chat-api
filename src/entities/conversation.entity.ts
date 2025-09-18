@@ -25,7 +25,11 @@ export class Conversation {
   @Column({ nullable: true })
   name?: string;
 
-  @Column({ type: 'enum', enum: ConversationType, default: ConversationType.DIRECT })
+  @Column({
+    type: 'enum',
+    enum: ConversationType,
+    default: ConversationType.DIRECT,
+  })
   type: ConversationType;
 
   @Column({ nullable: true })

@@ -8,7 +8,7 @@ import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { UsersService } from '../users/users.service';
 import { RegisterDto, LoginDto } from './dto/auth.dto';
-import { User } from '../entities/user.entity';
+import { User, UserStatus } from '../entities/user.entity';
 
 @Injectable()
 export class AuthService {
@@ -17,13 +17,20 @@ export class AuthService {
     private jwtService: JwtService,
   ) {}
 
-  async register(registerDto: RegisterDto): Promise<{ user: User; token: string }> {
+  async register(
+    registerDto: RegisterDto,
+  ): Promise<{ user: User; token: string }> {
     const { username, email, password, firstName, lastName } = registerDto;
 
     // Check if user already exists
-    const existingUser = await this.usersService.findByEmailOrUsername(email, username);
+    const existingUser = await this.usersService.findByEmailOrUsername(
+      email,
+      username,
+    );
     if (existingUser) {
-      throw new ConflictException('User with this email or username already exists');
+      throw new ConflictException(
+        'User with this email or username already exists',
+      );
     }
 
     // Hash password
@@ -48,7 +55,10 @@ export class AuthService {
     const { emailOrUsername, password } = loginDto;
 
     // Find user by email or username
-    const user = await this.usersService.findByEmailOrUsername(emailOrUsername, emailOrUsername);
+    const user = await this.usersService.findByEmailOrUsername(
+      emailOrUsername,
+      emailOrUsername,
+    );
     if (!user) {
       throw new UnauthorizedException('Invalid credentials');
     }
@@ -60,7 +70,7 @@ export class AuthService {
     }
 
     // Update user status to online
-    await this.usersService.updateStatus(user.id, 'online');
+    await this.usersService.updateStatus(user.id, UserStatus.ONLINE);
 
     // Generate JWT token
     const token = this.generateToken(user);
@@ -69,14 +79,14 @@ export class AuthService {
   }
 
   async logout(userId: string): Promise<void> {
-    await this.usersService.updateStatus(userId, 'offline');
+    await this.usersService.updateStatus(userId, UserStatus.OFFLINE);
   }
 
   private generateToken(user: User): string {
-    const payload = { 
-      sub: user.id, 
-      username: user.username, 
-      email: user.email 
+    const payload = {
+      sub: user.id,
+      username: user.username,
+      email: user.email,
     };
     return this.jwtService.sign(payload);
   }

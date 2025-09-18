@@ -4,25 +4,25 @@ import {
   ForbiddenException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { 
-  Conversation, 
-  ConversationType, 
-  ConversationAdmin 
+import { Repository, In } from 'typeorm';
+import {
+  Conversation,
+  ConversationType,
+  ConversationAdmin,
 } from '../entities/conversation.entity';
-import { 
-  Message, 
-  MessageReaction, 
-  MessageRead, 
-  MessageStatus 
+import {
+  Message,
+  MessageReaction,
+  MessageRead,
+  MessageStatus,
 } from '../entities/message.entity';
 import { User } from '../entities/user.entity';
-import { 
-  CreateConversationDto, 
-  UpdateConversationDto, 
+import {
+  CreateConversationDto,
+  UpdateConversationDto,
   SendMessageDto,
   AddParticipantDto,
-  ReactToMessageDto 
+  ReactToMessageDto,
 } from './dto/chat.dto';
 
 @Injectable()
@@ -47,19 +47,27 @@ export class ChatService {
     createConversationDto: CreateConversationDto,
   ): Promise<Conversation> {
     const { participantIds, ...conversationData } = createConversationDto;
-    
+
     // Include the creator in participants
     const allParticipantIds = [...new Set([userId, ...participantIds])];
-    
+
     // Validate participants exist
-    const participants = await this.userRepository.findByIds(allParticipantIds);
+    const participants = await this.userRepository.findBy({
+      id: In(allParticipantIds),
+    });
     if (participants.length !== allParticipantIds.length) {
       throw new NotFoundException('One or more participants not found');
     }
 
     // For direct conversations, check if one already exists
-    if (createConversationDto.type === ConversationType.DIRECT && allParticipantIds.length === 2) {
-      const existingConversation = await this.findDirectConversation(allParticipantIds[0], allParticipantIds[1]);
+    if (
+      createConversationDto.type === ConversationType.DIRECT &&
+      allParticipantIds.length === 2
+    ) {
+      const existingConversation = await this.findDirectConversation(
+        allParticipantIds[0],
+        allParticipantIds[1],
+      );
       if (existingConversation) {
         return existingConversation;
       }
@@ -72,7 +80,8 @@ export class ChatService {
       lastActivity: new Date(),
     });
 
-    const savedConversation = await this.conversationRepository.save(conversation);
+    const savedConversation =
+      await this.conversationRepository.save(conversation);
 
     // Make creator admin for group conversations
     if (createConversationDto.type !== ConversationType.DIRECT) {
@@ -85,12 +94,17 @@ export class ChatService {
     return savedConversation;
   }
 
-  async findDirectConversation(userId1: string, userId2: string): Promise<Conversation | null> {
+  async findDirectConversation(
+    userId1: string,
+    userId2: string,
+  ): Promise<Conversation | null> {
     return this.conversationRepository
       .createQueryBuilder('conversation')
       .leftJoin('conversation.participants', 'participant')
       .where('conversation.type = :type', { type: ConversationType.DIRECT })
-      .andWhere('participant.id IN (:...userIds)', { userIds: [userId1, userId2] })
+      .andWhere('participant.id IN (:...userIds)', {
+        userIds: [userId1, userId2],
+      })
       .groupBy('conversation.id')
       .having('COUNT(participant.id) = 2')
       .getOne();
@@ -107,7 +121,10 @@ export class ChatService {
       .getMany();
   }
 
-  async getConversationById(conversationId: string, userId: string): Promise<Conversation> {
+  async getConversationById(
+    conversationId: string,
+    userId: string,
+  ): Promise<Conversation> {
     const conversation = await this.conversationRepository
       .createQueryBuilder('conversation')
       .leftJoinAndSelect('conversation.participants', 'participant')
@@ -128,12 +145,14 @@ export class ChatService {
     updateDto: UpdateConversationDto,
   ): Promise<Conversation> {
     const conversation = await this.getConversationById(conversationId, userId);
-    
+
     // Check if user is admin for group conversations
     if (conversation.type !== ConversationType.DIRECT) {
       const isAdmin = await this.isUserAdmin(conversationId, userId);
       if (!isAdmin) {
-        throw new ForbiddenException('Only admins can update conversation details');
+        throw new ForbiddenException(
+          'Only admins can update conversation details',
+        );
       }
     }
 
@@ -166,7 +185,7 @@ export class ChatService {
     return this.messageRepository.findOne({
       where: { id: savedMessage.id },
       relations: ['sender'],
-    });
+    }) as Promise<Message>;
   }
 
   async getMessages(
@@ -235,7 +254,7 @@ export class ChatService {
     return this.messageRepository.findOne({
       where: { id: messageId },
       relations: ['sender'],
-    });
+    }) as Promise<Message>;
   }
 
   async reactToMessage(
@@ -259,7 +278,7 @@ export class ChatService {
     if (existingReaction) {
       // Remove reaction if it exists
       await this.reactionRepository.remove(existingReaction);
-      return null;
+      return null as any;
     }
 
     // Add new reaction
@@ -303,7 +322,9 @@ export class ChatService {
     const conversation = await this.getConversationById(conversationId, userId);
 
     if (conversation.type === ConversationType.DIRECT) {
-      throw new ForbiddenException('Cannot add participants to direct conversations');
+      throw new ForbiddenException(
+        'Cannot add participants to direct conversations',
+      );
     }
 
     // Check if user is admin
@@ -332,7 +353,9 @@ export class ChatService {
     const conversation = await this.getConversationById(conversationId, userId);
 
     if (conversation.type === ConversationType.DIRECT) {
-      throw new ForbiddenException('Cannot remove participants from direct conversations');
+      throw new ForbiddenException(
+        'Cannot remove participants from direct conversations',
+      );
     }
 
     const isAdmin = await this.isUserAdmin(conversationId, userId);
@@ -354,7 +377,10 @@ export class ChatService {
     });
   }
 
-  private async isUserAdmin(conversationId: string, userId: string): Promise<boolean> {
+  private async isUserAdmin(
+    conversationId: string,
+    userId: string,
+  ): Promise<boolean> {
     const admin = await this.adminRepository.findOne({
       where: { conversationId, userId },
     });

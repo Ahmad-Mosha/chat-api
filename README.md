@@ -1,98 +1,299 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="120" alt="Nest Logo" /></a>
-</p>
+# Chat API
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+A fully featured NestJS Chat API with real-time messaging capabilities, built with modern technologies and best practices.
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg" alt="Donate us"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow" alt="Follow us on Twitter"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+## Features
 
-## Description
+### 🔐 Authentication & Authorization
+- JWT-based authentication
+- User registration and login
+- Protected routes with guards
+- Password hashing with bcrypt
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+### 👥 User Management
+- User profiles with avatars
+- Online/offline status tracking
+- Friend system
+- User blocking functionality
+- User search
 
-## Project setup
+### 💬 Real-time Messaging
+- WebSocket integration with Socket.IO
+- Direct and group conversations
+- Message types (text, image, video, audio, file)
+- Message reactions with emojis
+- Reply to messages
+- Message editing and deletion
+- Typing indicators
+- Read receipts
+- Message search
 
-```bash
-$ npm install
+### 📁 File Handling
+- File upload with validation
+- Support for images, documents, audio, and video
+- File size limits and type restrictions
+- Static file serving
+
+### 🏗️ Technical Features
+- PostgreSQL database with TypeORM
+- Comprehensive API documentation with Swagger
+- Rate limiting and security middleware
+- CORS configuration
+- Input validation and transformation
+- Error handling and logging
+- Docker support for easy deployment
+
+## Tech Stack
+
+- **Framework**: NestJS (Node.js)
+- **Database**: PostgreSQL
+- **ORM**: TypeORM
+- **Authentication**: JWT with Passport
+- **Real-time**: Socket.IO
+- **Documentation**: Swagger/OpenAPI
+- **Validation**: class-validator
+- **File Upload**: Multer
+- **Containerization**: Docker & Docker Compose
+
+## Quick Start
+
+### Prerequisites
+
+- Node.js 18+ 
+- PostgreSQL 15+
+- npm or yarn
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Ahmad-Mosha/chat-api.git
+   cd chat-api
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Edit the `.env` file with your configuration:
+   ```env
+   DATABASE_HOST=localhost
+   DATABASE_PORT=5432
+   DATABASE_USERNAME=postgres
+   DATABASE_PASSWORD=password
+   DATABASE_NAME=chat_api
+   JWT_SECRET=your-super-secret-jwt-key-change-this-in-production
+   JWT_EXPIRES_IN=24h
+   PORT=3000
+   NODE_ENV=development
+   CORS_ORIGIN=http://localhost:3000
+   MAX_FILE_SIZE=10485760
+   UPLOAD_DEST=./uploads
+   ```
+
+4. **Start the database**
+   ```bash
+   # Using Docker Compose (recommended)
+   docker-compose up postgres -d
+   
+   # Or set up PostgreSQL manually
+   ```
+
+5. **Run the application**
+   ```bash
+   # Development mode
+   npm run start:dev
+   
+   # Production mode
+   npm run build
+   npm run start:prod
+   ```
+
+### Using Docker (Recommended)
+
+1. **Start all services**
+   ```bash
+   docker-compose up -d
+   ```
+
+2. **View logs**
+   ```bash
+   docker-compose logs -f app
+   ```
+
+3. **Stop services**
+   ```bash
+   docker-compose down
+   ```
+
+## API Documentation
+
+Once the application is running, visit:
+- **Swagger UI**: http://localhost:3000/api/docs
+- **API Base URL**: http://localhost:3000/api/v1
+
+### Key Endpoints
+
+#### Authentication
+- `POST /api/v1/auth/register` - Register a new user
+- `POST /api/v1/auth/login` - Login user
+- `POST /api/v1/auth/logout` - Logout user
+- `GET /api/v1/auth/profile` - Get user profile
+
+#### Users
+- `GET /api/v1/users` - Get all users
+- `GET /api/v1/users/search?q=query` - Search users
+- `PUT /api/v1/users/me` - Update profile
+- `POST /api/v1/users/friends/:id` - Add friend
+- `DELETE /api/v1/users/friends/:id` - Remove friend
+
+#### Chat
+- `POST /api/v1/chat/conversations` - Create conversation
+- `GET /api/v1/chat/conversations` - Get user conversations
+- `POST /api/v1/chat/conversations/:id/messages` - Send message
+- `GET /api/v1/chat/conversations/:id/messages` - Get messages
+- `PUT /api/v1/chat/messages/:id` - Edit message
+- `DELETE /api/v1/chat/messages/:id` - Delete message
+
+#### Files
+- `POST /api/v1/files/upload` - Upload file
+
+## WebSocket Events
+
+### Connection
+Connect to: `ws://localhost:3000/chat`
+
+Include JWT token in connection:
+```javascript
+const socket = io('http://localhost:3000/chat', {
+  auth: {
+    token: 'your-jwt-token'
+  }
+});
 ```
 
-## Compile and run the project
+### Events
 
-```bash
-# development
-$ npm run start
+#### Client to Server
+- `join:conversation` - Join a conversation room
+- `leave:conversation` - Leave a conversation room
+- `send:message` - Send a message
+- `edit:message` - Edit a message
+- `delete:message` - Delete a message
+- `react:message` - React to a message
+- `typing:start` - Start typing
+- `typing:stop` - Stop typing
+- `read:conversation` - Mark conversation as read
+- `update:status` - Update user status
 
-# watch mode
-$ npm run start:dev
+#### Server to Client
+- `message:new` - New message received
+- `message:edited` - Message was edited
+- `message:deleted` - Message was deleted
+- `message:reaction` - Message reaction added/removed
+- `typing:start` - User started typing
+- `typing:stop` - User stopped typing
+- `user:online` - User came online
+- `user:offline` - User went offline
+- `user:status` - User status changed
+- `conversation:read` - Conversation was read
 
-# production mode
-$ npm run start:prod
+## Project Structure
+
+```
+src/
+├── auth/                 # Authentication module
+│   ├── dto/             # Data transfer objects
+│   ├── auth.controller.ts
+│   ├── auth.service.ts
+│   ├── auth.module.ts
+│   ├── jwt.strategy.ts
+│   └── jwt-auth.guard.ts
+├── users/               # User management module
+│   ├── dto/
+│   ├── users.controller.ts
+│   ├── users.service.ts
+│   └── users.module.ts
+├── chat/                # Chat functionality module
+│   ├── dto/
+│   ├── chat.controller.ts
+│   ├── chat.service.ts
+│   └── chat.module.ts
+├── websockets/          # WebSocket module
+│   ├── chat.gateway.ts
+│   └── websockets.module.ts
+├── files/               # File handling module
+│   ├── files.controller.ts
+│   └── files.module.ts
+├── entities/            # Database entities
+│   ├── user.entity.ts
+│   ├── conversation.entity.ts
+│   └── message.entity.ts
+├── config/              # Configuration files
+│   ├── database.config.ts
+│   ├── jwt.config.ts
+│   └── app.config.ts
+├── common/              # Shared utilities
+│   ├── decorators/
+│   ├── guards/
+│   └── pipes/
+├── app.module.ts
+└── main.ts
 ```
 
-## Run tests
+## Testing
 
 ```bash
-# unit tests
-$ npm run test
+# Unit tests
+npm run test
 
-# e2e tests
-$ npm run test:e2e
+# E2E tests
+npm run test:e2e
 
-# test coverage
-$ npm run test:cov
+# Test coverage
+npm run test:cov
 ```
 
-## Deployment
+## Security Features
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+- **JWT Authentication**: Secure token-based authentication
+- **Password Hashing**: Bcrypt for secure password storage
+- **Input Validation**: Comprehensive input validation and sanitization
+- **Rate Limiting**: API rate limiting to prevent abuse
+- **CORS**: Configurable CORS settings
+- **File Upload Security**: File type and size validation
+- **SQL Injection Protection**: TypeORM provides built-in protection
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+## Performance Considerations
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
-```
+- **Database Indexing**: Proper indexing on frequently queried fields
+- **Pagination**: Implemented for message history and user lists
+- **Connection Pooling**: Database connection pooling for better performance
+- **Caching**: Ready for Redis integration for caching
+- **File Optimization**: File size limits and type restrictions
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+## Contributing
 
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+1. Fork the repository
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+## Support
+
+For support, email support@example.com or open an issue on GitHub.
+
+---
+
+Built with ❤️ using NestJS
